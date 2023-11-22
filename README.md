@@ -73,3 +73,10 @@ If you encounter any issues during the installation or compilation process, plea
 - [GStreamer Documentation](https://gstreamer.freedesktop.org/documentation/)
 
 If you have questions or need further support, feel free to open an issue on the [GitHub repository](https://github.com/yashreadytobox/gtk-gstream-gui-app).
+
+
+## **Additional References**
+
+- [Gstreamer Tutorial Documentation](https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c)
+- [Program Source](https://web.archive.org/web/20190628124320/http://wikistack.com/how-to-make-your-own-media-player-in-linux-using-gtk-and-gstreamer/ )
+
