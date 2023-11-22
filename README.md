@@ -25,7 +25,6 @@ sudo apt-get install libgtk-3-dev
 To install GStreamer and its related packages, run the following command:
 
 ```bash
-bashCopy code
 sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
 ```
 
@@ -36,7 +35,6 @@ Follow these steps to run the GTK GStreamer GUI App:
 ### **1. Clone the Repository**
 
 ```bash
-bashCopy code
 git clone https://github.com/yashreadytobox/gtk-gstream-gui-app.git
 
 ```
@@ -46,7 +44,6 @@ git clone https://github.com/yashreadytobox/gtk-gstream-gui-app.git
 Navigate to the repository directory:
 
 ```bash
-bashCopy code
 cd gtk-gstream-gui-app
 
 ```
@@ -54,7 +51,6 @@ cd gtk-gstream-gui-app
 Compile the **`Video-GUI.cpp`** file using the following command:
 
 ```bash
-bashCopy code
 gcc -g Video-GUI.cpp -o Video-GUI `pkg-config --cflags --libs gtk+-3.0 gstreamer-1.0 gstreamer-video-1.0 gstreamer-base-1.0`
 
 ```
@@ -64,7 +60,6 @@ gcc -g Video-GUI.cpp -o Video-GUI `pkg-config --cflags --libs gtk+-3.0 gstreamer
 After successful compilation, run the application:
 
 ```bash
-bashCopy code
 ./Video-GUI
 
 ```
