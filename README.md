@@ -15,7 +15,6 @@ Ensure that you have the following prerequisites installed on your system:
 To install GTK, run the following command in your terminal:
 
 ```bash
-bashCopy code
 sudo apt-get install libgtk-3-dev
 
 ```
