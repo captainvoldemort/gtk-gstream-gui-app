@@ -1,4 +1,4 @@
-# **GTK GStreamer GUI App Documentation**
+# **GTK GStreamer GUI App**
 
 ## **Introduction**
 
