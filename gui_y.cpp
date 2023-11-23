@@ -10,6 +10,8 @@ typedef struct {
     GstElement *video_sink;
 } AppData;
 
+static void start_pipeline(AppData *app_data);
+
 static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer data) {
     AppData *app_data = static_cast<AppData *>(data);
 
