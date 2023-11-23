@@ -1,6 +1,6 @@
 webcam.cpp: In function ‘void updateSpeedometer(GtkLabel*)’:
-webcam.cpp:27:84: warning: ‘void gtk_widget_override_color(GtkWidget*, GtkStateFlags, const GdkRGBA*)’ is deprecated [-Wdeprecated-declarations]
- k_widget_override_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &color);
+webcam.cpp:27:95: warning: ‘void gtk_widget_override_background_color(GtkWidget*, GtkStateFlags, const GdkRGBA*)’ is deprecated [-Wdeprecated-declarations]
+ erride_background_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &color);
                                                                               ^
 In file included from /usr/include/gtk-3.0/gtk/gtkapplication.h:27:0,
                  from /usr/include/gtk-3.0/gtk/gtkwindow.h:33,
@@ -8,6 +8,6 @@ In file included from /usr/include/gtk-3.0/gtk/gtkapplication.h:27:0,
                  from /usr/include/gtk-3.0/gtk/gtkaboutdialog.h:30,
                  from /usr/include/gtk-3.0/gtk/gtk.h:31,
                  from webcam.cpp:1:
-/usr/include/gtk-3.0/gtk/gtkwidget.h:1144:14: note: declared here
- void         gtk_widget_override_color            (GtkWidget     *widget,
+/usr/include/gtk-3.0/gtk/gtkwidget.h:1148:14: note: declared here
+ void         gtk_widget_override_background_color (GtkWidget     *widget,
 
