@@ -4,19 +4,27 @@
 #include <ctime>
 
 // Function to generate random speed values for testing
-double getRandomSpeed() {
-    return rand() % 100 + 1; // Generate a random speed between 1 and 100
+int getRandomSpeed() {
+    return rand() % 100; // Generate a random speed between 0 and 99
 }
 
-// Callback function for the slider value change
-void on_slider_changed(GtkWidget* slider, gpointer data) {
-    double value = gtk_range_get_value(GTK_RANGE(slider));
-
-    // Update the speed gauge value
-    GtkLabel* speedLabel = GTK_LABEL(data);
-    char speedText[50];
-    sprintf(speedText, "Speed: %.2f km/h", value);
+// Callback function for updating the speedometer display
+void updateSpeedometer(GtkLabel* speedLabel) {
+    int speed = getRandomSpeed();
+    char speedText[5];
+    sprintf(speedText, "%02d", speed); // Format the speed to always have two digits
     gtk_label_set_text(speedLabel, speedText);
+
+    // Set color based on speed range
+    GdkRGBA color;
+    if (speed < 30) {
+        gdk_rgba_parse(&color, "green");
+    } else if (speed < 70) {
+        gdk_rgba_parse(&color, "orange");
+    } else {
+        gdk_rgba_parse(&color, "red");
+    }
+    gtk_widget_override_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &color);
 }
 
 int main(int argc, char** argv) {
@@ -25,44 +33,26 @@ int main(int argc, char** argv) {
 
     // Create the main window
     GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Speed Gauge");
+    gtk_window_set_title(GTK_WINDOW(window), "Digital Speedometer");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
-    gtk_widget_set_size_request(window, 400, 200);
+    gtk_widget_set_size_request(window, 200, 100);
     gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    // Create a vertical box to hold the components
-    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-    gtk_container_add(GTK_CONTAINER(window), vbox);
+    // Create the speedometer label
+    GtkWidget* speedLabel = gtk_label_new("00");
+    gtk_label_set_use_markup(GTK_LABEL(speedLabel), TRUE);
+    gtk_widget_set_halign(speedLabel, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign(speedLabel, GTK_ALIGN_CENTER);
 
-    // Create the speed gauge label
-    GtkLabel* speedLabel = GTK_LABEL(gtk_label_new("Speed: 0.00 km/h"));
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(speedLabel), FALSE, FALSE, 0);
+    // Set up the timer to update the speedometer with random values
+    g_timeout_add(1000, [](gpointer data) -> gboolean {
+        updateSpeedometer(GTK_LABEL(data));
+        return G_SOURCE_CONTINUE;
+    }, speedLabel);
 
-    // Create the drawing area for the speed gauge
-    GtkWidget* drawingArea = gtk_drawing_area_new();
-    gtk_box_pack_start(GTK_BOX(vbox), drawingArea, TRUE, TRUE, 0);
-
-    // Create the slider for testing
-    GtkWidget* slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 100, 1);
-    gtk_box_pack_start(GTK_BOX(vbox), slider, FALSE, FALSE, 0);
-    g_signal_connect(slider, "value-changed", G_CALLBACK(on_slider_changed), speedLabel);
-
-    // Set up the random seed for testing
-    srand(time(NULL));
-
-    // Set up the timer to update the speed gauge with random values
-g_timeout_add(1000, reinterpret_cast<GSourceFunc>(+[](gpointer data) -> gboolean {
-    double speed = getRandomSpeed();
-    char speedText[50];
-    GtkLabel* speedLabel = GTK_LABEL(data);
-    sprintf(speedText, "Speed: %.2f km/h", speed);
-    gtk_label_set_text(speedLabel, speedText);
-    gtk_range_set_value(GTK_RANGE(slider), speed);
-    return G_SOURCE_CONTINUE;
-}), speedLabel);
-
-    // Show all components
+    // Show the speedometer label
+    gtk_container_add(GTK_CONTAINER(window), speedLabel);
     gtk_widget_show_all(window);
 
     // Start the GTK main loop
