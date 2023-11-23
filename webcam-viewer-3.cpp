@@ -1,85 +1,74 @@
 #include <gst/gst.h>
 #include <glib-unix.h>
-#include <signal.h>
 
 #define HOST "127.0.0.1"
 
-gboolean signal_handler(gpointer user_data) {
-    GMainLoop *loop = (GMainLoop *)user_data;
+gboolean signal_handler(gpointer user_data)
+{
+  GMainLoop *loop = (GMainLoop *)user_data;
 
-    g_print("Closing the main loop\n");
-    g_main_loop_quit(loop);
+  g_print("Closing the main loop\n");
+  g_main_loop_quit(loop);
 
-    return TRUE;
+  return G_SOURCE_CONTINUE;
 }
 
-static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer data) {
-    GMainLoop *loop = (GMainLoop *)data;
+int main(gint argc, gchar *argv[])
+{
+  GstElement *pipeline, *src, *videoconvert, *videoscale, *encoder, *capsfilter, *muxer, *sink;
+  GstCaps *caps;
+  GMainLoop *loop;
+  gint ret = -1;
 
-    switch (GST_MESSAGE_TYPE(message)) {
-        case GST_MESSAGE_ERROR: {
-            GError *err;
-            gchar *debug;
+  gst_init(&argc, &argv);
 
-            gst_message_parse_error(message, &err, &debug);
-            g_printerr("Error: %s\nDebug details: %s\n", err->message, debug ? debug : "none");
-            g_error_free(err);
-            g_free(debug);
+  pipeline = gst_pipeline_new("pipeline");
 
-            g_main_loop_quit(loop);
-            break;
-        }
-        case GST_MESSAGE_EOS:
-            g_print("End of Stream reached\n");
-            g_main_loop_quit(loop);
-            break;
-        default:
-            break;
-    }
+  src = gst_element_factory_make("autovideosrc", "autovideosrc");
+  videoconvert = gst_element_factory_make("videoconvert", "videoconvert");
+  videoscale = gst_element_factory_make("videoscale", "videoscale");
+  capsfilter = gst_element_factory_make("capsfilter", "capsfilter");
+  encoder = gst_element_factory_make("theoraenc", "theoraenc");
+  muxer = gst_element_factory_make("oggmux", "oggmux");
+  sink = gst_element_factory_make("tcpserversink", "tcpserversink");
 
-    return TRUE;
-}
+  if (!pipeline || !src || !videoconvert || !videoscale || !capsfilter || !encoder || !muxer || !sink)
+  {
+    g_printerr("Failed to create elements\n");
+    return -1;
+  }
 
-int main(gint argc, gchar *argv[]) {
-    GstElement *pipeline = NULL, *src = NULL, *videoconvert = NULL, *videoscale = NULL, *encoder = NULL,
-               *capsfilter = NULL, *muxer = NULL, *sink = NULL;
-    GstCaps *caps = NULL;
-    GMainLoop *loop;
-    GstBus *bus;
+  caps = gst_caps_from_string("video/x-raw,width=640,height=480");
+  g_object_set(capsfilter, "caps", caps, NULL);
+  gst_caps_unref(caps);
 
-    gst_init(&argc, &argv);
+  g_object_set(sink, "host", HOST, NULL);
 
-    pipeline = gst_pipeline_new("pipeline");
+  gst_bin_add_many(GST_BIN(pipeline), src, videoconvert, videoscale, capsfilter, encoder, muxer, sink, NULL);
+  if (!gst_element_link_many(src, videoconvert, videoscale, capsfilter, encoder, muxer, sink, NULL))
+  {
+    g_printerr("Failed to link elements\n");
+    return -1;
+  }
 
-    src = gst_element_factory_make("autovideosrc", "autovideosrc");
-    // ... (Check and handle errors for other elements similarly)
+  gst_element_set_state(pipeline, GST_STATE_PLAYING);
+  g_print("Pipeline playing\n");
 
-    if (!pipeline || !src || !videoconvert || !videoscale || !capsfilter || !encoder || !muxer || !sink) {
-        g_printerr("Failed to create GStreamer elements\n");
-        goto cleanup;
-    }
+  loop = g_main_loop_new(NULL, FALSE);
+  g_unix_signal_add(SIGINT, signal_handler, loop);
 
-    // ... (Element creation and linking)
+  g_print("Running the loop\n");
+  g_main_loop_run(loop);
 
-    bus = gst_pipeline_get_bus(GST_PIPELINE(pipeline));
-    gst_bus_add_watch(bus, bus_callback, loop);
-    gst_object_unref(bus);
+  g_print("Loop finished\n");
 
-    gst_element_set_state(pipeline, GST_STATE_PLAYING);
-    g_print("Pipeline playing\n");
+  gst_element_set_state(pipeline, GST_STATE_NULL);
+  g_print("Closed successfully\n");
 
-    loop = g_main_loop_new(NULL, FALSE);
-    g_unix_signal_add(SIGINT, signal_handler, loop);
-    g_main_loop_run(loop);
+  g_main_loop_unref(loop);
 
-cleanup:
-    gst_element_set_state(pipeline, GST_STATE_NULL);
-    g_print("Closed successfully\n");
+  gst_object_unref(pipeline);
+  gst_deinit();
 
-    if (pipeline != NULL) {
-        gst_object_unref(pipeline);
-    }
-    gst_deinit();
-
-    return 0;
+  return ret;
 }
