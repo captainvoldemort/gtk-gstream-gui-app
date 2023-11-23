@@ -24,7 +24,7 @@ void updateSpeedometer(GtkLabel* speedLabel) {
     } else {
         gdk_rgba_parse(&color, "red");
     }
-    gtk_widget_override_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &color);
+    gtk_widget_override_background_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &color);
 }
 
 int main(int argc, char** argv) {
