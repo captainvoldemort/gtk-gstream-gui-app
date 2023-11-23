@@ -37,7 +37,7 @@ static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer data) {
 static void initialize_pipeline(AppData *app_data) {
     GstElement *pipeline = gst_pipeline_new("webcam_pipeline");
     GstElement *source = gst_element_factory_make("v4l2src", "webcam_source");
-    GstElement *sink = gst_element_factory_make("autovideosink", "video_sink");
+    GstElement *sink = gst_element_factory_make("xvimagesink", "video_sink");
 
     if (!pipeline || !source || !sink) {
         g_error("Failed to create GStreamer elements.");
@@ -55,7 +55,7 @@ static void initialize_pipeline(AppData *app_data) {
     }
 
     app_data->pipeline = pipeline;
-    app_data->video_overlay = gst_element_factory_make("gtksink", "video_overlay");
+    app_data->video_overlay = gst_element_factory_make("xvimagesink", "video_overlay");
 
     if (!app_data->video_overlay) {
         g_error("Failed to create video overlay element.");
