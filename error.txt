@@ -1,30 +1,4 @@
-In file included from /usr/include/glib-2.0/gobject/gobject.h:24:0,
-                 from /usr/include/glib-2.0/gobject/gbinding.h:29,
-                 from /usr/include/glib-2.0/glib-object.h:23,
-                 from /usr/include/glib-2.0/gio/gioenums.h:28,
-                 from /usr/include/glib-2.0/gio/giotypes.h:28,
-                 from /usr/include/glib-2.0/gio/gio.h:26,
-                 from /usr/include/gtk-3.0/gdk/gdkapplaunchcontext.h:28,
-                 from /usr/include/gtk-3.0/gdk/gdk.h:32,
-                 from /usr/include/gtk-3.0/gtk/gtk.h:30,
-                 from webcam.cpp:1:
-webcam.cpp: In lambda function:
-webcam.cpp:61:39: error: ‘slider’ is not captured
-         gtk_range_set_value(GTK_RANGE(slider), speed);
-                                       ^
-/usr/include/glib-2.0/gobject/gtype.h:2224:57: note: in definition of macro ‘_G_TYPE_CIC’
-     ((ct*) g_type_check_instance_cast ((GTypeInstance*) ip, gt))
-                                                         ^~
-/usr/include/gtk-3.0/gtk/gtkrange.h:40:36: note: in expansion of macro ‘G_TYPE_CHECK_INSTANCE_CAST’
- #define GTK_RANGE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_RANGE, GtkRange))
-                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
-webcam.cpp:61:29: note: in expansion of macro ‘GTK_RANGE’
-         gtk_range_set_value(GTK_RANGE(slider), speed);
-                             ^~~~~~~~~
-webcam.cpp:55:26: note: the lambda has no capture-default
-     g_timeout_add(1000, [](gpointer data) -> gboolean {
-                          ^
-webcam.cpp:47:16: note: ‘GtkWidget* slider’ declared here
-     GtkWidget* slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 100, 1);
-                ^~~~~~
-
+webcam.cpp: In function ‘int main(int, char**)’:
+webcam.cpp:63:18: error: cannot convert ‘main(int, char**)::<lambda(gpointer)>’ to ‘GSourceFunc {aka int (*)(void*)}’ for argument ‘2’ to ‘guint g_timeout_add(guint, GSourceFunc, gpointer)’
+     }, speedLabel);
+                  ^
