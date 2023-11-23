@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     srand(time(NULL));
 
     // Set up the timer to update the speed gauge with random values
-    g_timeout_add(1000, [](gpointer data) -> gboolean {
+    g_timeout_add(1000, [slider](gpointer data) -> gboolean {
         double speed = getRandomSpeed();
         char speedText[50];
         GtkLabel* speedLabel = GTK_LABEL(data);
