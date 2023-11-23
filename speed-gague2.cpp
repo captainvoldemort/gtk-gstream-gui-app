@@ -34,21 +34,19 @@ int main(int argc, char** argv) {
     gtk_widget_set_halign(speedLabel, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(speedLabel, GTK_ALIGN_CENTER);
 
-    // Set text color to red
-    GdkRGBA textColor;
-    gdk_rgba_parse(&textColor, "red");
-    gtk_widget_override_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &textColor);
-
-    // Set background color to black
-    GdkRGBA bgColor;
-    gdk_rgba_parse(&bgColor, "black");
-    gtk_widget_override_background_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &bgColor);
-
     // Set up the timer to update the speedometer with random values
     g_timeout_add(1000, [](gpointer data) -> gboolean {
         updateSpeedometer(GTK_LABEL(data));
         return G_SOURCE_CONTINUE;
     }, speedLabel);
+
+    // Load CSS for styling
+    GtkCssProvider* cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(cssProvider, "styles.css", NULL);
+
+    // Apply the CSS to the label
+    GtkStyleContext* styleContext = gtk_widget_get_style_context(GTK_WIDGET(speedLabel));
+    gtk_style_context_add_provider(styleContext, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     // Show the speedometer label
     gtk_container_add(GTK_CONTAINER(window), speedLabel);
