@@ -9,7 +9,7 @@ const double MAX_SPEED = 200.0;  // Maximum speed for the gauge
 
 class SpeedGauge {
 public:
-    SpeedGauge(GtkDrawingArea* drawing_area) : drawing_area(drawing_area) {
+    SpeedGauge(GtkWidget* drawing_area) : drawing_area(drawing_area) {
         g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(on_draw), this);
         g_timeout_add(1000, G_SOURCE_FUNC(on_timeout), this);
     }
@@ -25,7 +25,7 @@ public:
     }
 
 private:
-    GtkDrawingArea* drawing_area;
+    GtkWidget* drawing_area;
 
     static gboolean on_draw(GtkWidget* widget, cairo_t* cr, gpointer data) {
         reinterpret_cast<SpeedGauge*>(data)->draw(widget, cr);
@@ -33,7 +33,7 @@ private:
     }
 
     static gboolean on_timeout(gpointer data) {
-        GtkDrawingArea* drawing_area = reinterpret_cast<SpeedGauge*>(data)->drawing_area;
+        GtkWidget* drawing_area = reinterpret_cast<SpeedGauge*>(data)->drawing_area;
         gtk_widget_queue_draw(GTK_WIDGET(drawing_area));
         return G_SOURCE_CONTINUE;
     }
