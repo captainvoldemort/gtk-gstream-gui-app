@@ -16,15 +16,15 @@ void updateSpeedometer(GtkLabel* speedLabel) {
     gtk_label_set_text(speedLabel, speedText);
 
     // Set color based on speed range
-    GdkRGBA color;
+    const char* colorClass;
     if (speed < 30) {
-        gdk_rgba_parse(&color, "green");
+        colorClass = "green-label";
     } else if (speed < 70) {
-        gdk_rgba_parse(&color, "orange");
+        colorClass = "orange-label";
     } else {
-        gdk_rgba_parse(&color, "red");
+        colorClass = "red-label";
     }
-    gtk_widget_override_background_color(GTK_WIDGET(speedLabel), GTK_STATE_FLAG_NORMAL, &color);
+    gtk_widget_set_name(GTK_WIDGET(speedLabel), colorClass);
 }
 
 int main(int argc, char** argv) {
@@ -50,6 +50,15 @@ int main(int argc, char** argv) {
         updateSpeedometer(GTK_LABEL(data));
         return G_SOURCE_CONTINUE;
     }, speedLabel);
+
+    // Load CSS for styling
+    GtkCssProvider* cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(cssProvider, R"(
+        .green-label { color: green; }
+        .orange-label { color: orange; }
+        .red-label { color: red; }
+    )", -1, NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     // Show the speedometer label
     gtk_container_add(GTK_CONTAINER(window), speedLabel);
