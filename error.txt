@@ -1,4 +1,4 @@
-speed.cpp: In constructor ‘SpeedGauge::SpeedGauge(GtkDrawingArea*)’:
+speed.cpp: In constructor ‘SpeedGauge::SpeedGauge(GtkWidget*)’:
 speed.cpp:14:29: error: ‘G_SOURCE_FUNC’ was not declared in this scope
          g_timeout_add(1000, G_SOURCE_FUNC(on_timeout), this);
                              ^~~~~~~~~~~~~
@@ -6,19 +6,6 @@ speed.cpp:14:29: note: suggested alternative: ‘GDK_SOURCE_PEN’
          g_timeout_add(1000, G_SOURCE_FUNC(on_timeout), this);
                              ^~~~~~~~~~~~~
                              GDK_SOURCE_PEN
-speed.cpp: In function ‘int main(int, char**)’:
-speed.cpp:90:40: error: no matching function for call to ‘SpeedGauge::SpeedGauge(GtkWidget*&)’
-     SpeedGauge speed_gauge(drawing_area);
-                                        ^
-speed.cpp:12:5: note: candidate: SpeedGauge::SpeedGauge(GtkDrawingArea*)
-     SpeedGauge(GtkDrawingArea* drawing_area) : drawing_area(drawing_area) {
-     ^~~~~~~~~~
-speed.cpp:12:5: note:   no known conversion for argument 1 from ‘GtkWidget* {aka _GtkWidget*}’ to ‘GtkDrawingArea* {aka _GtkDrawingArea*}’
-speed.cpp:10:7: note: candidate: constexpr SpeedGauge::SpeedGauge(const SpeedGauge&)
- class SpeedGauge {
-       ^~~~~~~~~~
-speed.cpp:10:7: note:   no known conversion for argument 1 from ‘GtkWidget* {aka _GtkWidget*}’ to ‘const SpeedGauge&’
-speed.cpp:10:7: note: candidate: constexpr SpeedGauge::SpeedGauge(SpeedGauge&&)
-speed.cpp:10:7: note:   no known conversion for argument 1 from ‘GtkWidget* {aka _GtkWidget*}’ to ‘SpeedGauge&&’
+
 
 
