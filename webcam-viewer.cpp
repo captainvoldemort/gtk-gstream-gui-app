@@ -1,13 +1,11 @@
 #include <gtk/gtk.h>
 #include <gst/gst.h>
-#include <gst/video/videooverlay.h>
-#include <gdk/gdkx.h>  // Add this line for GDK_WINDOW_XID
 
 typedef struct {
     GtkWidget *main_window;
     GtkWidget *video_widget;
     GstElement *pipeline;
-    GstElement *video_sink;
+    GstElement *gtksink;
 } AppData;
 
 static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer data) {
@@ -37,25 +35,24 @@ static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer data) {
 static void initialize_pipeline(AppData *app_data) {
     GstElement *pipeline = gst_pipeline_new("webcam_pipeline");
     GstElement *source = gst_element_factory_make("v4l2src", "webcam_source");
-    GstElement *video_sink = gst_element_factory_make("autovideosink", "video_sink");
+    GstElement *videoconvert = gst_element_factory_make("videoconvert", "videoconvert");
+    GstElement *gtksink = gst_element_factory_make("gtksink", "gtksink");
 
-    if (!pipeline || !source || !video_sink) {
+    if (!pipeline || !source || !videoconvert || !gtksink) {
         g_error("Failed to create GStreamer elements.");
         return;
     }
 
-    g_object_set(G_OBJECT(source), "device", "/dev/video0", NULL);
+    gst_bin_add_many(GST_BIN(pipeline), source, videoconvert, gtksink, NULL);
 
-    gst_bin_add_many(GST_BIN(pipeline), source, video_sink, NULL);
-
-    if (!gst_element_link(source, video_sink)) {
+    if (!gst_element_link_many(source, videoconvert, gtksink, NULL)) {
         g_error("Failed to link GStreamer elements.");
         gst_object_unref(pipeline);
         return;
     }
 
     app_data->pipeline = pipeline;
-    app_data->video_sink = video_sink;
+    app_data->gtksink = gtksink;
 }
 
 static void setup_gui(AppData *app_data) {
@@ -73,8 +70,8 @@ static void setup_gui(AppData *app_data) {
     gst_bus_add_watch(bus, (GstBusFunc)bus_callback, app_data);
     gst_object_unref(bus);
 
-    gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(app_data->video_sink),
-                                        GDK_WINDOW_XID(gtk_widget_get_window(app_data->video_widget)));
+    // Set the GTksink to draw on the GTK widget
+    g_object_set(G_OBJECT(app_data->gtksink), "widget", (guintptr)app_data->video_widget, NULL);
 }
 
 static void start_pipeline(AppData *app_data) {
