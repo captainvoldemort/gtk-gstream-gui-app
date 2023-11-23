@@ -1,0 +1,6 @@
+(web:10031): GLib-GObject-WARNING **: 17:11:18.020: invalid cast from 'GstGtkSink' to 'GstVideoOverlay'
+
+** (web:10031): CRITICAL **: 17:11:18.020: gst_video_overlay_set_window_handle: assertion 'GST_IS_VIDEO_OVERLAY (overlay)' failed
+Error received from element webcam_source: Internal data stream error.
+Debugging information: gstbasesrc.c(3055): gst_base_src_loop (): /GstPipeline:webcam_pipeline/GstV4l2Src:webcam_source:
+streaming stopped, reason not-negotiated (-4)
