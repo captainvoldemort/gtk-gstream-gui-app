@@ -75,6 +75,15 @@ static void on_start_clicked(GtkWidget *widget, gpointer data) {
     gtk_widget_hide(app_data->start_button);
     gtk_widget_show(app_data->stop_button);
     gtk_widget_show(app_data->exit_button);
+
+    // Embed the video area in the grid
+    GtkWidget *grid = gtk_grid_new();
+    gtk_grid_attach(GTK_GRID(grid), app_data->video_area, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), app_data->stop_button, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), app_data->exit_button, 0, 2, 1, 1);
+
+    gtk_container_remove(GTK_CONTAINER(app_data->main_window), app_data->start_button);
+    gtk_container_add(GTK_CONTAINER(app_data->main_window), grid);
 }
 
 static void on_stop_clicked(GtkWidget *widget, gpointer data) {
@@ -83,6 +92,10 @@ static void on_stop_clicked(GtkWidget *widget, gpointer data) {
     gtk_widget_hide(app_data->stop_button);
     gtk_widget_hide(app_data->exit_button);
     gtk_widget_show(app_data->start_button);
+
+    // Remove the video area and buttons from the grid
+    gtk_container_remove(GTK_CONTAINER(app_data->main_window), gtk_widget_get_parent(app_data->video_area));
+    gtk_container_add(GTK_CONTAINER(app_data->main_window), app_data->start_button);
 }
 
 static void on_exit_clicked(GtkWidget *widget, gpointer data) {
@@ -95,25 +108,21 @@ static void setup_gui(AppData *app_data) {
     gtk_window_set_default_size(GTK_WINDOW(app_data->main_window), 640, 480);
     g_signal_connect(G_OBJECT(app_data->main_window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(app_data->main_window), vbox);
+    GtkWidget *grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(app_data->main_window), grid);
 
     app_data->video_area = gtk_drawing_area_new();
-    gtk_box_pack_start(GTK_BOX(vbox), app_data->video_area, TRUE, TRUE, 0);
+    gtk_grid_attach(GTK_GRID(grid), app_data->video_area, 0, 0, 1, 1);
 
     app_data->start_button = gtk_button_new_with_label("Start");
     g_signal_connect(G_OBJECT(app_data->start_button), "clicked", G_CALLBACK(on_start_clicked), app_data);
-    gtk_box_pack_start(GTK_BOX(vbox), app_data->start_button, FALSE, FALSE, 0);
+    gtk_grid_attach(GTK_GRID(grid), app_data->start_button, 0, 1, 1, 1);
 
     app_data->stop_button = gtk_button_new_with_label("Stop");
     g_signal_connect(G_OBJECT(app_data->stop_button), "clicked", G_CALLBACK(on_stop_clicked), app_data);
-    gtk_box_pack_start(GTK_BOX(vbox), app_data->stop_button, FALSE, FALSE, 0);
-    gtk_widget_hide(app_data->stop_button);
 
     app_data->exit_button = gtk_button_new_with_label("Exit");
     g_signal_connect(G_OBJECT(app_data->exit_button), "clicked", G_CALLBACK(on_exit_clicked), app_data);
-    gtk_box_pack_start(GTK_BOX(vbox), app_data->exit_button, FALSE, FALSE, 0);
-    gtk_widget_hide(app_data->exit_button);
 
     gtk_widget_show_all(app_data->main_window);
 }
