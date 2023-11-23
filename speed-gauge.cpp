@@ -1,96 +1,71 @@
 #include <gtk/gtk.h>
-#include <cmath>
+#include <iostream>
 #include <cstdlib>
 #include <ctime>
 
-const int WIDTH = 400;
-const int HEIGHT = 300;
-const double MAX_SPEED = 200.0;  // Maximum speed for the gauge
+// Function to generate random speed values for testing
+double getRandomSpeed() {
+    return rand() % 100 + 1; // Generate a random speed between 1 and 100
+}
 
-class SpeedGauge {
-public:
-    SpeedGauge(GtkWidget* drawing_area) : drawing_area(drawing_area) {
-        g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(on_draw), this);
-        g_timeout_add(1000, G_SOURCE_FUNC(on_timeout), this);
-    }
+// Callback function for the slider value change
+void on_slider_changed(GtkWidget* slider, gpointer data) {
+    double value = gtk_range_get_value(GTK_RANGE(slider));
 
-    void draw(GtkWidget* widget, cairo_t* cr) {
-        // Clear the drawing area
-        cairo_set_source_rgb(cr, 1, 1, 1);
-        cairo_paint(cr);
+    // Update the speed gauge value
+    GtkLabel* speedLabel = GTK_LABEL(data);
+    char speedText[50];
+    sprintf(speedText, "Speed: %.2f km/h", value);
+    gtk_label_set_text(speedLabel, speedText);
+}
 
-        // Draw the speed gauge
-        double speed = get_random_speed();
-        draw_gauge(cr, speed);
-    }
-
-private:
-    GtkWidget* drawing_area;
-
-    static gboolean on_draw(GtkWidget* widget, cairo_t* cr, gpointer data) {
-        reinterpret_cast<SpeedGauge*>(data)->draw(widget, cr);
-        return FALSE;
-    }
-
-    static gboolean on_timeout(gpointer data) {
-        GtkWidget* drawing_area = reinterpret_cast<SpeedGauge*>(data)->drawing_area;
-        gtk_widget_queue_draw(GTK_WIDGET(drawing_area));
-        return G_SOURCE_CONTINUE;
-    }
-
-    double get_random_speed() const {
-        // Generate a random speed between 0 and MAX_SPEED
-        return static_cast<double>(rand()) / RAND_MAX * MAX_SPEED;
-    }
-
-    void draw_gauge(cairo_t* cr, double speed) const {
-        double angle = M_PI / 4 + (speed / MAX_SPEED) * (3 * M_PI / 2 - M_PI / 4);
-
-        int center_x = WIDTH / 2;
-        int center_y = HEIGHT;
-
-        // Draw the arc representing the speed
-        cairo_set_source_rgb(cr, 0.2, 0.8, 0.2);
-        cairo_set_line_width(cr, 10);
-        cairo_arc(cr, center_x, center_y, HEIGHT / 2 - 20, M_PI / 4, angle);
-        cairo_stroke(cr);
-
-        // Draw the needle
-        cairo_set_source_rgb(cr, 0.8, 0, 0);
-        cairo_set_line_width(cr, 3);
-        cairo_move_to(cr, center_x, center_y);
-        cairo_line_to(cr, center_x + cos(angle) * (HEIGHT / 2 - 20), center_y - sin(angle) * (HEIGHT / 2 - 20));
-        cairo_stroke(cr);
-
-        // Draw the speed text
-        cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-        cairo_set_font_size(cr, 20);
-        cairo_set_source_rgb(cr, 0, 0, 0);
-
-        char speed_text[50];
-        snprintf(speed_text, sizeof(speed_text), "Speed: %.2f", speed);
-        cairo_move_to(cr, 10, 30);
-        cairo_show_text(cr, speed_text);
-    }
-};
-
-int main(int argc, char* argv[]) {
-    srand(time(NULL));
-
+int main(int argc, char** argv) {
+    // Initialize GTK
     gtk_init(&argc, &argv);
 
+    // Create the main window
     GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Speed Gauge");
+    gtk_container_set_border_width(GTK_CONTAINER(window), 10);
+    gtk_widget_set_size_request(window, 400, 200);
+    gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    GtkWidget* drawing_area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(drawing_area, WIDTH, HEIGHT);
+    // Create a vertical box to hold the components
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
 
-    gtk_container_add(GTK_CONTAINER(window), drawing_area);
+    // Create the speed gauge label
+    GtkLabel* speedLabel = GTK_LABEL(gtk_label_new("Speed: 0.00 km/h"));
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(speedLabel), FALSE, FALSE, 0);
 
-    SpeedGauge speed_gauge(drawing_area);
+    // Create the drawing area for the speed gauge
+    GtkWidget* drawingArea = gtk_drawing_area_new();
+    gtk_box_pack_start(GTK_BOX(vbox), drawingArea, TRUE, TRUE, 0);
 
+    // Create the slider for testing
+    GtkWidget* slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 100, 1);
+    gtk_box_pack_start(GTK_BOX(vbox), slider, FALSE, FALSE, 0);
+    g_signal_connect(slider, "value-changed", G_CALLBACK(on_slider_changed), speedLabel);
+
+    // Set up the random seed for testing
+    srand(time(NULL));
+
+    // Set up the timer to update the speed gauge with random values
+    g_timeout_add(1000, [](gpointer data) -> gboolean {
+        double speed = getRandomSpeed();
+        char speedText[50];
+        GtkLabel* speedLabel = GTK_LABEL(data);
+        sprintf(speedText, "Speed: %.2f km/h", speed);
+        gtk_label_set_text(speedLabel, speedText);
+        gtk_range_set_value(GTK_RANGE(slider), speed);
+        return G_SOURCE_CONTINUE;
+    }, speedLabel);
+
+    // Show all components
     gtk_widget_show_all(window);
 
+    // Start the GTK main loop
     gtk_main();
 
     return 0;
