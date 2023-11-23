@@ -1,74 +1,99 @@
+#include <gtk/gtk.h>
 #include <gst/gst.h>
-#include <glib-unix.h>
+#include <gst/video/videooverlay.h>
+#include <gdk/gdkx.h>  // Add this line for GDK_WINDOW_XID
 
-#define HOST "127.0.0.1"
+typedef struct {
+    GtkWidget *main_window;
+    GtkWidget *video_widget;
+    GstElement *pipeline;
+    GstElement *video_sink;
+} AppData;
 
-gboolean signal_handler(gpointer user_data)
-{
-  GMainLoop *loop = (GMainLoop *)user_data;
+static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer data) {
+    AppData *app_data = static_cast<AppData *>(data);
 
-  g_print("Closing the main loop\n");
-  g_main_loop_quit(loop);
+    switch (GST_MESSAGE_TYPE(message)) {
+        case GST_MESSAGE_ERROR: {
+            GError *err;
+            gchar *debug_info;
 
-  return G_SOURCE_CONTINUE;
+            gst_message_parse_error(message, &err, &debug_info);
+            g_printerr("Error received from element %s: %s\n", GST_OBJECT_NAME(message->src), err->message);
+            g_printerr("Debugging information: %s\n", debug_info ? debug_info : "none");
+            g_clear_error(&err);
+            g_free(debug_info);
+
+            gtk_main_quit();
+            break;
+        }
+        default:
+            break;
+    }
+
+    return TRUE;
 }
 
-int main(gint argc, gchar *argv[])
-{
-  GstElement *pipeline, *src, *videoconvert, *videoscale, *encoder, *capsfilter, *muxer, *sink;
-  GstCaps *caps;
-  GMainLoop *loop;
-  gint ret = -1;
+static void initialize_pipeline(AppData *app_data) {
+    GstElement *pipeline = gst_pipeline_new("webcam_pipeline");
+    GstElement *source = gst_element_factory_make("v4l2src", "webcam_source");
+    GstElement *video_sink = gst_element_factory_make("xvimagesink", "video_sink");
 
-  gst_init(&argc, &argv);
+    if (!pipeline || !source || !video_sink) {
+        g_error("Failed to create GStreamer elements.");
+        return;
+    }
 
-  pipeline = gst_pipeline_new("pipeline");
+    g_object_set(G_OBJECT(source), "device", "/dev/video0", NULL);
 
-  src = gst_element_factory_make("autovideosrc", "autovideosrc");
-  videoconvert = gst_element_factory_make("videoconvert", "videoconvert");
-  videoscale = gst_element_factory_make("videoscale", "videoscale");
-  capsfilter = gst_element_factory_make("capsfilter", "capsfilter");
-  encoder = gst_element_factory_make("theoraenc", "theoraenc");
-  muxer = gst_element_factory_make("oggmux", "oggmux");
-  sink = gst_element_factory_make("tcpserversink", "tcpserversink");
+    gst_bin_add_many(GST_BIN(pipeline), source, video_sink, NULL);
 
-  if (!pipeline || !src || !videoconvert || !videoscale || !capsfilter || !encoder || !muxer || !sink)
-  {
-    g_printerr("Failed to create elements\n");
-    return -1;
-  }
+    if (!gst_element_link(source, video_sink)) {
+        g_error("Failed to link GStreamer elements.");
+        gst_object_unref(pipeline);
+        return;
+    }
 
-  caps = gst_caps_from_string("video/x-raw,width=640,height=480");
-  g_object_set(capsfilter, "caps", caps, NULL);
-  gst_caps_unref(caps);
+    app_data->pipeline = pipeline;
+    app_data->video_sink = video_sink;
+}
 
-  g_object_set(sink, "host", HOST, NULL);
+static void setup_gui(AppData *app_data) {
+    app_data->main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(app_data->main_window), "Webcam Viewer");
+    gtk_window_set_default_size(GTK_WINDOW(app_data->main_window), 640, 480);
+    g_signal_connect(G_OBJECT(app_data->main_window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-  gst_bin_add_many(GST_BIN(pipeline), src, videoconvert, videoscale, capsfilter, encoder, muxer, sink, NULL);
-  if (!gst_element_link_many(src, videoconvert, videoscale, capsfilter, encoder, muxer, sink, NULL))
-  {
-    g_printerr("Failed to link elements\n");
-    return -1;
-  }
+    app_data->video_widget = gtk_drawing_area_new();
+    gtk_container_add(GTK_CONTAINER(app_data->main_window), app_data->video_widget);
 
-  gst_element_set_state(pipeline, GST_STATE_PLAYING);
-  g_print("Pipeline playing\n");
+    gtk_widget_show_all(app_data->main_window);
 
-  loop = g_main_loop_new(NULL, FALSE);
-  g_unix_signal_add(SIGINT, signal_handler, loop);
+    GstBus *bus = gst_element_get_bus(app_data->pipeline);
+    gst_bus_add_watch(bus, (GstBusFunc)bus_callback, app_data);
+    gst_object_unref(bus);
 
-  g_print("Running the loop\n");
-  g_main_loop_run(loop);
+    gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(app_data->video_sink),
+                                        GDK_WINDOW_XID(gtk_widget_get_window(app_data->video_widget)));
+}
 
-  g_print("Loop finished\n");
+static void start_pipeline(AppData *app_data) {
+    gst_element_set_state(app_data->pipeline, GST_STATE_PLAYING);
+}
 
-  gst_element_set_state(pipeline, GST_STATE_NULL);
-  g_print("Closed successfully\n");
+int main(int argc, char *argv[]) {
+    gtk_init(&argc, &argv);
+    gst_init(&argc, &argv);
 
-  g_main_loop_unref(loop);
+    AppData app_data;
+    initialize_pipeline(&app_data);
+    setup_gui(&app_data);
+    start_pipeline(&app_data);
 
-  gst_object_unref(pipeline);
-  gst_deinit();
+    gtk_main();
 
-  return ret;
+    gst_element_set_state(app_data.pipeline, GST_STATE_NULL);
+    gst_object_unref(app_data.pipeline);
+
+    return 0;
 }
