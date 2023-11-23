@@ -14,17 +14,6 @@ void updateSpeedometer(GtkLabel* speedLabel) {
     char speedText[5];
     sprintf(speedText, "%02d", speed); // Format the speed to always have two digits
     gtk_label_set_text(speedLabel, speedText);
-
-    // Set color based on speed range
-    const char* colorClass;
-    if (speed < 30) {
-        colorClass = "green-label";
-    } else if (speed < 70) {
-        colorClass = "orange-label";
-    } else {
-        colorClass = "red-label";
-    }
-    gtk_widget_set_name(GTK_WIDGET(speedLabel), colorClass);
 }
 
 int main(int argc, char** argv) {
@@ -53,12 +42,11 @@ int main(int argc, char** argv) {
 
     // Load CSS for styling
     GtkCssProvider* cssProvider = gtk_css_provider_new();
-    gtk_css_provider_load_from_data(cssProvider, R"(
-        .green-label { color: green; }
-        .orange-label { color: orange; }
-        .red-label { color: red; }
-    )", -1, NULL);
-    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_css_provider_load_from_path(cssProvider, "styles.css", NULL);
+
+    // Apply the CSS to the label
+    GtkStyleContext* styleContext = gtk_widget_get_style_context(GTK_WIDGET(speedLabel));
+    gtk_style_context_add_provider(styleContext, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     // Show the speedometer label
     gtk_container_add(GTK_CONTAINER(window), speedLabel);
