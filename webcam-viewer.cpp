@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <gst/gst.h>
 #include <gst/video/videooverlay.h>
-#include <gdk/gdkx.h>
+#include <gdk/gdkx.h>  // Add this line for GDK_WINDOW_XID
 
 typedef struct {
     GtkWidget *main_window;
@@ -45,8 +45,6 @@ static void initialize_pipeline(AppData *app_data) {
     }
 
     g_object_set(G_OBJECT(source), "device", "/dev/video0", NULL);
-    g_object_set(G_OBJECT(source), "framerate", 30, NULL);  // Adjust framerate as needed
-    g_object_set(G_OBJECT(source), "width", 640, "height", 480, NULL);  // Adjust resolution if needed
 
     gst_bin_add_many(GST_BIN(pipeline), source, video_sink, NULL);
 
@@ -87,7 +85,7 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
     gst_init(&argc, &argv);
 
-    AppData app_data = {0};
+    AppData app_data;
     initialize_pipeline(&app_data);
     setup_gui(&app_data);
     start_pipeline(&app_data);
