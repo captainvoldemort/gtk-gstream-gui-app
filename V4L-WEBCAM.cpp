@@ -79,6 +79,18 @@ static void start_pipeline(AppData *app_data) {
     GstElement *pipeline, *v4l2src, *jpegdec, *gtksink;
     GstBus *bus;
 
+    // Initialize GStreamer
+    if (!gst_init_check(NULL, NULL)) {
+        g_error("Failed to initialize GStreamer.");
+        return;
+    }
+
+    // Initialize GTK
+    if (!gdk_init_check(NULL, NULL)) {
+        g_error("Failed to initialize GTK.");
+        return;
+    }
+
     pipeline = gst_pipeline_new("v4l2_pipeline");
     v4l2src = gst_element_factory_make("v4l2src", "v4l2src");
     jpegdec = gst_element_factory_make("jpegdec", "jpegdec");
@@ -86,6 +98,12 @@ static void start_pipeline(AppData *app_data) {
 
     if (!pipeline || !v4l2src || !jpegdec || !gtksink) {
         g_error("Failed to create GStreamer elements.");
+        return;
+    }
+
+    // Check if file descriptor is valid
+    if (app_data->fd == -1) {
+        g_error("File descriptor is not valid.");
         return;
     }
 
@@ -104,8 +122,12 @@ static void start_pipeline(AppData *app_data) {
 
     // Check if gtksink supports the video overlay interface
     if (GST_IS_VIDEO_OVERLAY(gtksink)) {
-        gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(gtksink),
-                                            GDK_WINDOW_XID(gtk_widget_get_window(app_data->video_widget)));
+        GdkWindow *window = gtk_widget_get_window(app_data->video_widget);
+        if (window != NULL) {
+            gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(gtksink), GDK_WINDOW_XID(window));
+        } else {
+            g_warning("Failed to get GDK window.");
+        }
     } else {
         g_warning("The gtksink element does not support the video overlay interface.");
     }
@@ -114,16 +136,21 @@ static void start_pipeline(AppData *app_data) {
 }
 
 int main(int argc, char *argv[]) {
-    gtk_init(&argc, &argv);
-    gst_init(&argc, &argv);
-
     AppData app_data;
+
+    // Initialize V4L2 device
     initialize_v4l2_device(&app_data);
+
+    // Setup GUI
     setup_gui(&app_data);
+
+    // Start GStreamer pipeline
     start_pipeline(&app_data);
 
+    // Run GTK main loop
     gtk_main();
 
+    // Close V4L2 device
     close(app_data.fd);
 
     return 0;
