@@ -13,3 +13,12 @@ strlen () at ../sysdeps/aarch64/strlen.S:94
 #0  0x0000007fb7411450 in strlen () at ../sysdeps/aarch64/strlen.S:94
 #1  0x0000007fb75894f8 in g_strdup ()
     at /usr/lib/aarch64-linux-gnu/libglib-2.0.so.0
+
+
+v4l.cpp: In function ‘void start_pipeline(AppData*)’:
+v4l.cpp:83:35: error: too few arguments to function ‘gboolean gst_init_check(int*, char***, GError**)’
+     if (!gst_init_check(NULL, NULL)) {
+                                   ^
+In file included from v4l.cpp:2:0:
+/usr/include/gstreamer-1.0/gst/gst.h:104:10: note: declared here
+ gboolean gst_init_check   (int *argc, char **argv[],
