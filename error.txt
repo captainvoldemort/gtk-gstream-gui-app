@@ -1,24 +1,26 @@
+GNU gdb (Ubuntu 8.1.1-0ubuntu1) 8.1.1
+Copyright (C) 2018 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "aarch64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./v4l...done.
 (gdb) run
 Starting program: /home/yash/Desktop/v4l 
 [Thread debugging using libthread_db enabled]
 Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
-[New Thread 0x7fb5cdbea0 (LWP 8649)]
-[New Thread 0x7fb54daea0 (LWP 8650)]
-[New Thread 0x7fb4c9aea0 (LWP 8651)]
 
-Thread 1 "v4l" received signal SIGSEGV, Segmentation fault.
-strlen () at ../sysdeps/aarch64/strlen.S:94
-94	../sysdeps/aarch64/strlen.S: No such file or directory.
+Program received signal SIGSEGV, Segmentation fault.
+0x0000007fb7c399a0 in ?? () from /usr/lib/aarch64-linux-gnu/libgtk-3.so.0
 (gdb) bt
-#0  0x0000007fb7411450 in strlen () at ../sysdeps/aarch64/strlen.S:94
-#1  0x0000007fb75894f8 in g_strdup ()
-    at /usr/lib/aarch64-linux-gnu/libglib-2.0.so.0
-
-
-v4l.cpp: In function ‘void start_pipeline(AppData*)’:
-v4l.cpp:83:35: error: too few arguments to function ‘gboolean gst_init_check(int*, char***, GError**)’
-     if (!gst_init_check(NULL, NULL)) {
-                                   ^
-In file included from v4l.cpp:2:0:
-/usr/include/gstreamer-1.0/gst/gst.h:104:10: note: declared here
- gboolean gst_init_check   (int *argc, char **argv[],
+#0  0x0000007fb7c399a0 in  () at /usr/lib/aarch64-linux-gnu/libgtk-3.so.0
+#1  0xc0a90c1337ec7b00 in  ()
+(gdb) 
