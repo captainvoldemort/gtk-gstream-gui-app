@@ -1,3 +1,11 @@
+(gdb) run
+Starting program: /home/yash/Desktop/v4l 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7fb5cdbea0 (LWP 8649)]
+[New Thread 0x7fb54daea0 (LWP 8650)]
+[New Thread 0x7fb4c9aea0 (LWP 8651)]
+
 Thread 1 "v4l" received signal SIGSEGV, Segmentation fault.
 strlen () at ../sysdeps/aarch64/strlen.S:94
 94	../sysdeps/aarch64/strlen.S: No such file or directory.
@@ -5,5 +13,3 @@ strlen () at ../sysdeps/aarch64/strlen.S:94
 #0  0x0000007fb7411450 in strlen () at ../sysdeps/aarch64/strlen.S:94
 #1  0x0000007fb75894f8 in g_strdup ()
     at /usr/lib/aarch64-linux-gnu/libglib-2.0.so.0
-
-
