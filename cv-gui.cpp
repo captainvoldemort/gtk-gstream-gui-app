@@ -1,11 +1,14 @@
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QVBoxLayout>
-#include <QtGui/QImage>
-#include <QtGui/QPixmap>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/videodev2.h>
+#include <QApplication>
+#include <QWidget>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QImage>
+#include <QPixmap>
+#include <QDebug>
 #include <QTimer>
 
 class WebcamViewer : public QWidget
@@ -14,16 +17,24 @@ class WebcamViewer : public QWidget
 
 public:
     WebcamViewer(QWidget *parent = nullptr)
-        : QWidget(parent), capture(0)
+        : QWidget(parent), videoDevice("/dev/video0")
     {
-        // Open the default camera using V4L2
-        capture.open(0);
+        // Open the video device
+        fd = open(videoDevice.toStdString().c_str(), O_RDWR);
 
-        if (!capture.isOpened())
+        if (fd == -1)
         {
-            qDebug() << "Error: Unable to open the camera.";
+            qDebug() << "Error: Unable to open the video device.";
             return;
         }
+
+        // Set up the video format
+        struct v4l2_format format = {};
+        format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        format.fmt.pix.width = 640;
+        format.fmt.pix.height = 480;
+        format.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
+        ioctl(fd, VIDIOC_S_FMT, &format);
 
         // Set up the GUI
         QVBoxLayout *layout = new QVBoxLayout(this);
@@ -38,29 +49,47 @@ public:
         setLayout(layout);
     }
 
+    ~WebcamViewer()
+    {
+        // Close the video device
+        close(fd);
+    }
+
 public slots:
     void updateImage()
     {
-        cv::Mat frame;
-        capture >> frame;
+        // Read a frame from the video device
+        struct v4l2_buffer buf = {};
+        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buf.memory = V4L2_MEMORY_MMAP;
+        ioctl(fd, VIDIOC_DQBUF, &buf);
 
-        if (frame.empty())
-        {
-            qDebug() << "Error: Unable to capture frame.";
-            return;
-        }
-
-        // Convert OpenCV Mat to QImage
-        QImage img(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_BGR888);
-        img = img.rgbSwapped();
+        // Copy the frame data to a QImage
+        QImage img(
+            buffers[buf.index].start,
+            format.fmt.pix.width,
+            format.fmt.pix.height,
+            format.fmt.pix.bytesperline,
+            QImage::Format_RGB32);
 
         // Display the image
         QLabel *imageLabel = findChild<QLabel *>();
         imageLabel->setPixmap(QPixmap::fromImage(img));
+
+        // Re-enqueue the buffer
+        ioctl(fd, VIDIOC_QBUF, &buf);
     }
 
 private:
-    cv::VideoCapture capture;
+    QString videoDevice;
+    int fd;
+    struct v4l2_format format;
+    struct v4l2_requestbuffers req = {};
+    struct buffer
+    {
+        void *start;
+        size_t length;
+    } *buffers;
 };
 
 int main(int argc, char *argv[])
