@@ -80,7 +80,7 @@ static void start_pipeline(AppData *app_data) {
     GstBus *bus;
 
     // Initialize GStreamer
-    if (!gst_init_check(NULL, NULL)) {
+    if (!gst_init_check(NULL, NULL, NULL)) {
         g_error("Failed to initialize GStreamer.");
         return;
     }
