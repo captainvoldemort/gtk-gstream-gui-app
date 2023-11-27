@@ -1,48 +1,39 @@
 /* styles.css */
 
-
+/* General styling */
+* {
+    padding: 0;
+    margin: 0;
+}
 
 body {
-
     background-color: black;
-
-    color: white;
-
-    font-size: 24px;
-
 }
 
-
-
-button {
-
-    background-color: green;
-
-    color: white;
-
-    padding: 15px 20px;
-
-    margin: 10px;
-
-}
-
-
-
+/* Speedometer styling */
 #speedLabel {
-
     color: red;
-
-    font-size: 36px;
-
+    font-size: 24px;
 }
 
+/* Button styling */
+button {
+    background-color: green;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+}
 
-
+/* Camera feed label styling */
 #cameraFeedLabel {
-
-    color: red;
-
-    font-size: 36px;
-
+    color: white;
+    font-size: 24px;
 }
 
+/* Back button styling */
+#backButton {
+    background-color: green;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+}
