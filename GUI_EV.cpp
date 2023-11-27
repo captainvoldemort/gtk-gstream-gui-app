@@ -105,6 +105,14 @@ static void setup_camera_screen(AppData *app_data) {
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
+     // Set up CSS provider
+    GtkCssProvider *cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(cssProvider, "styles.css", NULL);
+
+    // Apply CSS to the main window
+    GtkStyleContext *styleContext = gtk_widget_get_style_context(app_data.main_window);
+    gtk_style_context_add_provider(styleContext, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
     AppData app_data;
     app_data.main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(app_data.main_window), "Electric Scooter GUI");
