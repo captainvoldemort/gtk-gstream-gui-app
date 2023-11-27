@@ -1,26 +1,3 @@
-GNU gdb (Ubuntu 8.1.1-0ubuntu1) 8.1.1
-Copyright (C) 2018 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
-and "show warranty" for details.
-This GDB was configured as "aarch64-linux-gnu".
-Type "show configuration" for configuration details.
-For bug reporting instructions, please see:
-<http://www.gnu.org/software/gdb/bugs/>.
-Find the GDB manual and other documentation resources online at:
-<http://www.gnu.org/software/gdb/documentation/>.
-For help, type "help".
-Type "apropos word" to search for commands related to "word"...
-Reading symbols from ./v4l...done.
-(gdb) run
-Starting program: /home/yash/Desktop/v4l 
-[Thread debugging using libthread_db enabled]
-Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+(gui:11303): GLib-GObject-WARNING **: 18:51:27.868: invalid unclassed pointer in cast to 'GtkLabel'
 
-Program received signal SIGSEGV, Segmentation fault.
-0x0000007fb7c399a0 in ?? () from /usr/lib/aarch64-linux-gnu/libgtk-3.so.0
-(gdb) bt
-#0  0x0000007fb7c399a0 in  () at /usr/lib/aarch64-linux-gnu/libgtk-3.so.0
-#1  0xc0a90c1337ec7b00 in  ()
-(gdb) 
+(gui:11303): Gtk-CRITICAL **: 18:51:27.868: gtk_label_set_text: assertion 'GTK_IS_LABEL (label)' failed
