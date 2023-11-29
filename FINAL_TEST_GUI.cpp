@@ -352,7 +352,9 @@ void createCameraSelectionButtons(AppData* app_data) {
 
     g_signal_connect(G_OBJECT(rearCamButton), "clicked", G_CALLBACK(switchToRearCamera), app_data);
 
-    
+
+
+    // Create the back button
 
     GtkWidget* backButton = gtk_button_new_with_label("Back");
 
@@ -362,15 +364,47 @@ void createCameraSelectionButtons(AppData* app_data) {
 
 
 
-    // Set up the grid to arrange the camera selection buttons
+    // Create the speedometer label
 
-    GtkWidget* grid = gtk_grid_new();
+    GtkWidget* speedLabel = gtk_label_new("00");
 
-    gtk_grid_attach(GTK_GRID(grid), frontCamButton, 0, 0, 1, 1);
+    gtk_widget_set_name(speedLabel, "speed-label");
 
-    gtk_grid_attach(GTK_GRID(grid), rearCamButton, 1, 0, 1, 1);
+    gtk_label_set_use_markup(GTK_LABEL(speedLabel), TRUE);
 
-    gtk_grid_attach(GTK_GRID(grid), backButton, 0, 1, 2, 1);
+    gtk_widget_set_halign(speedLabel, GTK_ALIGN_CENTER);
+
+    gtk_widget_set_valign(speedLabel, GTK_ALIGN_CENTER);
+
+
+
+    // Create a vertical box to stack the buttons and speedometer
+
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+
+
+
+    // Add the speedometer label to the vbox
+
+    gtk_box_pack_start(GTK_BOX(vbox), speedLabel, TRUE, TRUE, 0);
+
+
+
+    // Add the front camera button to the vbox
+
+    gtk_box_pack_start(GTK_BOX(vbox), frontCamButton, FALSE, FALSE, 0);
+
+
+
+    // Add the rear camera button to the vbox
+
+    gtk_box_pack_start(GTK_BOX(vbox), rearCamButton, FALSE, FALSE, 0);
+
+
+
+    // Add the back button to the vbox
+
+    gtk_box_pack_start(GTK_BOX(vbox), backButton, FALSE, FALSE, 0);
 
 
 
@@ -382,13 +416,15 @@ void createCameraSelectionButtons(AppData* app_data) {
 
 
 
-    // Apply the CSS to the buttons in the grid
+    // Apply the CSS to the buttons and speedometer in the vbox
 
     GtkStyleContext* styleContextFrontButton = gtk_widget_get_style_context(frontCamButton);
 
     GtkStyleContext* styleContextRearButton = gtk_widget_get_style_context(rearCamButton);
 
     GtkStyleContext* styleContextBackButton = gtk_widget_get_style_context(backButton);
+
+    GtkStyleContext* styleContextSpeedLabel = gtk_widget_get_style_context(speedLabel);
 
 
 
@@ -398,15 +434,17 @@ void createCameraSelectionButtons(AppData* app_data) {
 
     gtk_style_context_add_provider(styleContextBackButton, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
+    gtk_style_context_add_provider(styleContextSpeedLabel, GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 
-    // Center the grid in the window
 
-    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-
-    gtk_box_pack_start(GTK_BOX(vbox), grid, TRUE, TRUE, 0);
+    // Center the vbox in the window
 
     gtk_container_add(GTK_CONTAINER(app_data->main_window), vbox);
+
+    gtk_window_set_position(GTK_WINDOW(app_data->main_window), GTK_WIN_POS_CENTER);
+
+    gtk_window_set_default_size(GTK_WINDOW(app_data->main_window), 800, 600);
 
 
 
@@ -415,6 +453,8 @@ void createCameraSelectionButtons(AppData* app_data) {
     gtk_widget_show_all(app_data->main_window);
 
 }
+
+
 
 
 
