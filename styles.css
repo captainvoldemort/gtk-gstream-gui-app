@@ -1,24 +1,38 @@
-/* styles.css */
+#main-window {
 
-body {
     background-color: black;
-    color: white;
-    font-size: 24px;
+
 }
 
-button {
-    background-color: green;
-    color: white;
-    padding: 15px 20px;
-    margin: 10px;
-}
 
-#speedLabel {
+
+#speed-label {
+
     color: red;
-    font-size: 36px;
+
+    font-size: 100px; /* Adjust the font size as needed */
+
+    padding: 5px;    /* Adjust the padding as needed */
+
 }
 
-#cameraFeedLabel {
-    color: red;
-    font-size: 36px;
+
+
+
+
+#exit-button {
+
+  background-color: white;
+
+  border: none;
+
+  color: green;
+
+  padding: 15px 32px;
+
+  text-decoration: none;
+
+  font-size: 100px;
+
 }
+
