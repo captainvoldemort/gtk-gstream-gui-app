@@ -1,0 +1,38 @@
+#main-window {
+
+    background-color: black;
+
+}
+
+
+
+#speed-label {
+
+    color: red;
+
+    font-size: 100px; /* Adjust the font size as needed */
+
+    padding: 5px;    /* Adjust the padding as needed */
+
+}
+
+
+
+
+
+#exit-button {
+
+  background-color: white;
+
+  border: none;
+
+  color: green;
+
+  padding: 15px 32px;
+
+  text-decoration: none;
+
+  font-size: 100px;
+
+}
+
