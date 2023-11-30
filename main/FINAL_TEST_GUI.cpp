@@ -97,7 +97,7 @@ void setupCameraFeedForDevice(AppData* app_data, const gchar* device) {
   app_data->backButton = gtk_button_new_with_label("Back");
   gtk_widget_set_name(app_data->backButton, "exit-button");
   g_signal_connect(G_OBJECT(app_data->backButton), "clicked",
-                   G_CALLBACK(backToMainWindow), app_data);
+                   G_CALLBACK(switchToCameraFeed), app_data);
   // Load CSS for styling
   GtkCssProvider* cssProvider = gtk_css_provider_new();
   if (gtk_css_provider_load_from_path(cssProvider, "styles.css", NULL)) {
