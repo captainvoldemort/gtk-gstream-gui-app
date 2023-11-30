@@ -47,7 +47,7 @@ static gboolean busCallback(GstBus* bus, GstMessage* message, gpointer data) {
       g_free(debugInfo);
       // Handle the error appropriately, e.g., stop the pipeline and switch back
       // to the main window
-      backToMainWindow(app_data->backButton, app_data);
+      //backToMainWindow(app_data->backButton, app_data);
       break;
     }
     default:
